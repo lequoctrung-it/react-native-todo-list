@@ -17,7 +17,7 @@ export default function HomeScreen({ navigation, route }) {
 
     const [taskItems, setTaskItems] = React.useState([])
 
-    //Render tasks
+    // Render tasks
     const fetchTasks = async () => {
         const getTasksFromFireBase = []
         const querySnapshot = await getDocs(collection(db, "tasks"));
@@ -36,7 +36,7 @@ export default function HomeScreen({ navigation, route }) {
     }, [])
 
     //Delete task
-    const pressHandler = async (key) => {
+    const deleteHandler = async (key) => {
         await deleteDoc(doc(db, "tasks", key))
         fetchTasks()
     }
@@ -56,7 +56,7 @@ export default function HomeScreen({ navigation, route }) {
                 <FlatList 
                     data={taskItems}
                     renderItem={({ item }) => (
-                        <TodoItem item={item} pressHandler={pressHandler} />
+                        <TodoItem item={item} deleteHandler={deleteHandler} navigation={navigation} />
                     )}
                 />
                 </View>

@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'
 
-export default function TodoItem({ item, pressHandler }) {
+export default function TodoItem({ item, deleteHandler, navigation }) {
     return (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Add task', { item: item })}>
             <View style={styles.item}>
                 <Text style={styles.text}>{item.task}</Text>
-                <AntDesign style={styles.icon} name="delete" size={24} color="black" onPress={() => pressHandler(item.key)}/>
+                <AntDesign style={styles.icon} name="delete" size={24} color="black" onPress={() => deleteHandler(item.key)}/>
             </View>
         </TouchableOpacity>
     )

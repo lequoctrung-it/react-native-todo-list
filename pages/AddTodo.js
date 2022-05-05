@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, View, TextInput, Button } from 'react-native';
+import submitHandler from '../components/submitHandler'
 
-import { db } from '../constants/common'
-import { 
-    addDoc,
-    collection
-} from '@firebase/firestore'
-
-export default function AddToDo({ navigation }) {
-    const [text, setText] = useState('')
+export default function AddToDo({ route, navigation }) {
+    const [ btnTitle, setBtnTitle] = useState('Add')
+    
+    const [text, setText] = useState(() => {
+        if (route.params?.item) {
+            setBtnTitle('Update')
+            return route.params.item.task
+        }
+        return ''
+    })
 
     const changeHandler = (val) => {
         setText(val)
     }
-    
-    const submitHandler = async (text) => {
-        if (text.length > 0) {
-            const docRef = await addDoc(collection(db, "tasks"), {
+
+    const addHandler = () => {
+        if (route.params?.item) {
+            const newItem = {
+                id: route.params.item.key,
                 task: text,
-                createAt: new Date().valueOf(),
-            });
-            navigation.navigate("Today's tasks")
+            }
+            submitHandler(newItem, navigation)
         } else {
-            Alert.alert('Error!', 'Cannot create an empty task', [
-                {text: 'Okay', onPress: () => console.log('Close alert')}
-            ])
+            const newItem = {
+                id: null,
+                task: text,
+            }
+            submitHandler(newItem, navigation)
         }
     }
 
@@ -34,14 +39,13 @@ export default function AddToDo({ navigation }) {
                 style={styles.input}
                 placeholder="New todo..."
                 onChangeText={changeHandler}
+                value={text}
             />
 
             <Button
                 style={styles.addBtn}
-                onPress={() => {
-                    submitHandler(text)
-                }} 
-                title='Add' 
+                onPress={addHandler} 
+                title={btnTitle} 
                 color="#4f61d1" 
             />
         </View>
