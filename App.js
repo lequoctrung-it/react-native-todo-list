@@ -20,7 +20,11 @@ export default function App() {
             options={options}
           />
 
-          <Stack.Screen name="Add task" component={AddToDo} options={options} />
+          <Stack.Screen 
+            name="Add task" 
+            component={AddToDo} 
+            options={options} 
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

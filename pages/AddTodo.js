@@ -6,7 +6,7 @@ import {
   TouchableHighlight,
   Text,
 } from "react-native";
-import submitHandler from "../components/submitHandler";
+import SubmitHandler from "../components/SubmitHandler";
 
 export default function AddToDo({ route, navigation }) {
   const [btnTitle, setBtnTitle] = useState("Add");
@@ -19,24 +19,22 @@ export default function AddToDo({ route, navigation }) {
     return "";
   });
 
-  const changeHandler = (val) => {
-    setText(val);
-  };
-
   const addHandler = () => {
     if (route.params?.item) {
       const newItem = {
         id: route.params.item.key,
+        completed: route.params.item.completed,
         task: text,
       };
-      submitHandler(newItem, navigation);
+      SubmitHandler(newItem, navigation);
     } else {
       const newItem = {
         id: null,
         task: text,
       };
-      submitHandler(newItem, navigation);
+      SubmitHandler(newItem, navigation);
     }
+    navigation.goBack();
   };
 
   return (
@@ -44,7 +42,7 @@ export default function AddToDo({ route, navigation }) {
       <TextInput
         style={styles.input}
         placeholder="What do you need to do?"
-        onChangeText={changeHandler}
+        onChangeText={setText}
         value={text}
       />
 
@@ -55,7 +53,7 @@ export default function AddToDo({ route, navigation }) {
       >
         <Text style={styles.submitText}>{btnTitle}</Text>
       </TouchableHighlight>
-    </Vi>
+    </View>
   );
 }
 

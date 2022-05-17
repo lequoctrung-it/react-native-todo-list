@@ -4,12 +4,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-  CheckBox,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { updateDoc, doc } from "@firebase/firestore";
+import { db } from "../constants/common";
 
 export default function TodoItem({ item, deleteHandler, navigation }) {
+  const toggleComplete = async (isChecked) => {
+    const docRef = await updateDoc(doc(db, "tasks", item.key), {
+      completed: isChecked
+    });
+  }
+  
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("Add task", { item: item })}
@@ -21,7 +28,12 @@ export default function TodoItem({ item, deleteHandler, navigation }) {
           text={item.task}
           iconStyle={{ borderColor: "#4f61d1", borderRadius: 8 }}
           style={styles.checkbox}
+          onPress={(isChecked) => toggleComplete(isChecked)}
+          isChecked={item.completed}
         />
+        
+        <Text style={styles.space}></Text>
+
         <AntDesign
           style={styles.icon}
           name="delete"
@@ -48,7 +60,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   checkbox: {
-    flex: 1,
     alignSelf: "center",
   },
+  space: {
+    flex: 1
+  }
 });

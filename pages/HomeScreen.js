@@ -1,49 +1,53 @@
 import * as React from "react";
 import { StyleSheet, View, FlatList } from "react-native";
 import { FAB } from "@rneui/themed";
+import { useFocusEffect  } from '@react-navigation/native';
 
-import TodoItem from "../components/todoItem";
+import TodoItem from "../components/TodoItem";
 
 import { db } from "../constants/common";
-import { doc, getDocs, collection, deleteDoc } from "@firebase/firestore";
+import { doc, getDocs, collection, deleteDoc, onSnapshot, disableNetwork, enableNetwork } from "@firebase/firestore";
 
-export default function HomeScreen({ navigation, route }) {
-  const [visible, setVisible] = React.useState(true);
+export default function HomeScreen({ navigation, route }) {  
+  // const disableNetworkFirestore = async () => {
+  //   await disableNetwork(db);
+  // }
+  // disableNetworkFirestore();
 
   const [taskItems, setTaskItems] = React.useState([]);
 
   // Render tasks
-  const fetchTasks = async () => {
-    const getTasksFromFireBase = [];
-    const querySnapshot = await getDocs(collection(db, "tasks"));
-    querySnapshot.forEach((doc) => {
-      getTasksFromFireBase.push({
-        ...doc.data(),
-        key: doc.id,
-      });
-    });
-    getTasksFromFireBase.sort((t1, t2) => t1.createAt - t2.createAt).reverse();
-    setTaskItems(getTasksFromFireBase);
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      // Subscribe fetch data when the screen is focused   
+      const unsubscribe = onSnapshot(collection(db, "tasks"), (querySnapshot) => {
+        const getTasksFromFireBase = [];
+        querySnapshot.forEach((doc) => {
+          getTasksFromFireBase.push({
+            ...doc.data(),
+            key: doc.id,
+          });
+        });
+        
+        // const source = querySnapshot.metadata.fromCache ? "Local" : "Server";
+        // console.log("Data came from " + source);
+        getTasksFromFireBase.sort((t1, t2) => t1.createAt - t2.createAt).reverse();
+        setTaskItems(getTasksFromFireBase);
+      })
 
-  React.useEffect(() => {
-    fetchTasks();
-  }, []);
-
+      return () => {
+        // Unsubscribe fetch data when the screen is unfocused
+        unsubscribe()
+      };
+    }, [])
+  );
+  
   //Delete task
   const deleteHandler = async (key) => {
     let arr = taskItems.filter((item) => item.key !== key);
     setTaskItems(arr);
     await deleteDoc(doc(db, "tasks", key));
   };
-
-  //Re-render after go back from another screen
-  React.useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      fetchTasks();
-    });
-    return unsubscribe;
-  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -63,7 +67,7 @@ export default function HomeScreen({ navigation, route }) {
       </View>
 
       <FAB
-        visible={visible}
+        visible={true}
         icon={{ name: "add", color: "white" }}
         color="#4f61d1"
         placement="right"
